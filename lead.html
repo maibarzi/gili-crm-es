@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gili — Ficha del cliente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rose: #E2999B; --rose-dark: #C97A7D; --dark: #1A1A18;
+    --warm-white: #FAF8F4; --muted: #8A8580; --border: #E5E0D8;
+    --success: #4B7A5B; --error: #B84A4A;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--warm-white); color: var(--dark);
+    font-family: 'Instrument Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 80px; }
+  .back { display: inline-block; color: var(--muted); font-size: 13px; text-decoration: none; margin-bottom: 16px; }
+  .back:hover { color: var(--dark); }
+  .logo { font-family: 'DM Serif Display', serif; font-size: 24px; }
+  .logo span { color: var(--rose); }
+  .card {
+    background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px; margin-top: 20px;
+  }
+  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .step-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 50%; background: var(--rose);
+    color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .card-title { font-family: 'DM Serif Display', serif; font-size: 20px; font-weight: 400; margin: 0; }
+  .card-sub { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+  .hint { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; font-weight: 400; }
+  input[type="text"], input[type="tel"], input[type="number"], input[type="date"], select, textarea {
+    width: 100%; padding: 11px 12px; border: 1px solid var(--border); border-radius: 10px;
+    font-size: 15px; font-family: inherit; color: var(--dark); background: var(--warm-white);
+  }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--rose); outline-offset: 1px; background: #fff; }
+  textarea { resize: vertical; min-height: 70px; }
+  .toggle-row { display: flex; gap: 10px; }
+  .toggle-opt {
+    flex: 1; text-align: center; padding: 12px; border-radius: 10px;
+    border: 1px solid var(--border); cursor: pointer; font-size: 14px; font-weight: 500;
+    background: var(--warm-white);
+  }
+  .toggle-opt.selected.yes { background: #eef5ef; border-color: var(--success); color: var(--success); }
+  .toggle-opt.selected.no { background: #fbecec; border-color: var(--error); color: var(--error); }
+  .checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
+  .checkbox-item {
+    display: flex; align-items: center; gap: 6px; padding: 9px 14px;
+    border: 1px solid var(--border); border-radius: 10px; background: var(--warm-white);
+    font-size: 14px; font-weight: 400; cursor: pointer; margin: 0;
+  }
+  .checkbox-item input { accent-color: var(--rose); }
+  button.save {
+    width: 100%; padding: 14px; border: none; border-radius: 10px;
+    background: var(--dark); color: #fff; font-size: 15px; font-weight: 600;
+    font-family: inherit; cursor: pointer; margin-top: 20px;
+  }
+  button.save:hover { background: #000; }
+  button.save:disabled { opacity: 0.5; cursor: not-allowed; }
+  .status { margin-top: 12px; padding: 10px 14px; border-radius: 10px; font-size: 13px; display: none; }
+  .status.ok { display: block; background: #eef5ef; color: var(--success); border: 1px solid #cfe3d3; }
+  .status.err { display: block; background: #fbecec; color: var(--error); border: 1px solid #f0cccc; }
+  select { -webkit-appearance: none; appearance: none; }
+  .loadingBanner { text-align: center; padding: 20px; color: var(--muted); font-size: 14px; }
+
+  .script-panel {
+    background: #fff; border: 1px solid var(--border); border-radius: 16px;
+    margin-top: 20px; overflow: hidden;
+  }
+  .script-panel > summary {
+    padding: 18px 24px; cursor: pointer; list-style: none;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'DM Serif Display', serif; font-size: 18px;
+  }
+  .script-panel > summary::-webkit-details-marker { display: none; }
+  .script-panel > summary::after {
+    content: '+'; font-family: 'Instrument Sans', sans-serif; font-size: 22px;
+    color: var(--rose-dark); transition: transform 0.15s ease;
+  }
+  .script-panel[open] > summary::after { transform: rotate(45deg); }
+  .script-body { padding: 4px 24px 24px; font-size: 14px; line-height: 1.6; }
+  .script-body h3 {
+    font-family: 'DM Serif Display', serif; font-weight: 400; font-size: 15px;
+    color: var(--rose-dark); margin: 22px 0 8px;
+  }
+  .script-body h3:first-child { margin-top: 0; }
+  .script-quote {
+    background: var(--warm-white); border-radius: 10px; padding: 12px 14px;
+    margin: 8px 0; font-style: italic; border-inline-start: 3px solid var(--rose);
+  }
+  .script-note { color: var(--muted); font-size: 13px; margin: 6px 0; }
+  .script-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  .script-table th {
+    text-align: left; background: var(--warm-white); padding: 8px 10px;
+    font-weight: 600; color: var(--rose-dark); border-bottom: 1px solid var(--border);
+  }
+  .script-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .script-table tr:last-child td { border-bottom: none; }
+  .script-panel details { margin-top: 14px; }
+  .script-panel details > summary {
+    cursor: pointer; font-weight: 600; color: var(--rose-dark); font-size: 14px;
+    padding: 8px 0; list-style: none;
+  }
+  .script-panel details > summary::-webkit-details-marker { display: none; }
+  .script-panel details > summary::before { content: '▸ '; }
+  .script-panel details[open] > summary::before { content: '▾ '; }
+</style>
+</head>
+<body>
+<!-- Hidden forms so Netlify's build-time bot detects these form shapes.
+     Never rendered or submitted natively — the real submission happens via
+     fetch() in saveSlice(), mirroring to Netlify Forms as a redundant data source. -->
+<form name="opening-call" data-netlify="true" hidden>
+  <input type="text" name="id">
+  <input type="text" name="slice">
+  <input type="text" name="templateLang">
+  <input type="text" name="updatedAt">
+  <input type="text" name="repName">
+  <input type="text" name="contactName">
+  <input type="text" name="salonName">
+  <input type="text" name="city">
+  <input type="text" name="stylistCount">
+  <input type="text" name="bookingSystem">
+  <input type="text" name="bookingSystemOther">
+  <textarea name="callNotes"></textarea>
+  <input type="text" name="callOutcome">
+  <input type="text" name="followUpDate">
+  <input type="text" name="openingWhatsapp">
+  <input type="text" name="sendLink">
+  <input type="text" name="sendDemo">
+</form>
+<form name="closing-call" data-netlify="true" hidden>
+  <input type="text" name="id">
+  <input type="text" name="slice">
+  <input type="text" name="templateLang">
+  <input type="text" name="updatedAt">
+  <input type="text" name="closingContact">
+  <input type="text" name="whatsapp">
+  <textarea name="closingCallNotes"></textarea>
+  <input type="text" name="closingStatus">
+  <textarea name="onboardingNotes"></textarea>
+  <input type="text" name="closed">
+</form>
+<div class="wrap">
+  <a class="back" href="index.html">← Volver a la lista de clientes</a>
+  <div class="logo">gili<span>.</span></div>
+  <div class="loadingBanner" id="loadingBanner">Cargando datos existentes...</div>
+
+  <!-- Rozmowa wstępna / Llamada inicial -->
+  <div class="card">
+    <div class="card-head">
+      <span class="step-badge">1</span>
+      <div>
+        <p class="card-title">Llamada inicial</p>
+        <p class="card-sub">Primer contacto — información del salón y desarrollo de la llamada</p>
+      </div>
+    </div>
+    <form id="openingForm">
+      <div class="field">
+        <label for="repName">Nombre de la persona que llama</label>
+        <input type="text" id="repName" name="repName">
+      </div>
+      <div class="field">
+        <label for="contactName">Nombre de la persona de contacto</label>
+        <input type="text" id="contactName" name="contactName">
+      </div>
+      <div class="field">
+        <label for="salonName">Nombre del salón</label>
+        <input type="text" id="salonName" name="salonName">
+      </div>
+      <div class="field">
+        <label for="city">Ciudad / región</label>
+        <input type="text" id="city" name="city">
+      </div>
+      <div class="field">
+        <label for="stylistCount">Número de estilistas/empleadas</label>
+        <input type="number" id="stylistCount" name="stylistCount" min="1">
+      </div>
+      <div class="field">
+        <label>Cómo se puede reservar cita hoy</label>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" name="bookingSystem" value="treatwell"> Treatwell</label>
+          <label class="checkbox-item"><input type="checkbox" name="bookingSystem" value="booksy"> Booksy</label>
+          <label class="checkbox-item"><input type="checkbox" name="bookingSystem" value="fresha"> Fresha</label>
+          <label class="checkbox-item"><input type="checkbox" name="bookingSystem" value="phone_only"> Teléfono</label>
+          <label class="checkbox-item"><input type="checkbox" id="bookingSystemOtherCheck" name="bookingSystem" value="other"> Otro</label>
+        </div>
+        <span class="hint">Se puede marcar más de una opción</span>
+        <div class="field" id="bookingSystemOtherWrap" hidden>
+          <input type="text" id="bookingSystemOther" name="bookingSystemOther" placeholder="Qué exactamente">
+        </div>
+      </div>
+      <div class="field">
+        <label for="callNotes">Cómo fue la llamada y qué objeciones hubo</label>
+        <textarea id="callNotes" name="callNotes"></textarea>
+      </div>
+      <div class="field">
+        <label for="callOutcome">Estado</label>
+        <select id="callOutcome" name="callOutcome">
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="closing_scheduled">Se acordó llamada de cierre</option>
+          <option value="interested_followup">Interesada — volver a llamar</option>
+          <option value="objection">No interesada / objeciones</option>
+          <option value="no_answer">No contestó</option>
+          <option value="wrong_number">Número incorrecto / desactualizado</option>
+          <option value="other">Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="followUpDate">Fecha acordada para la llamada de cierre</label>
+        <input type="date" id="followUpDate" name="followUpDate">
+      </div>
+      <div class="field">
+        <label for="openingWhatsapp">Número de WhatsApp</label>
+        <input type="tel" id="openingWhatsapp" name="openingWhatsapp" placeholder="34123456789">
+        <span class="hint">Obligatorio solo si envías ahora el enlace o el número de demo</span>
+      </div>
+      <div class="field">
+        <label>¿Enviar ahora el enlace del sitio de Gili?</label>
+        <div class="toggle-row">
+          <div class="toggle-opt" data-value="yes" id="sendLinkYes">Sí</div>
+          <div class="toggle-opt" data-value="no" id="sendLinkNo">No</div>
+        </div>
+        <input type="hidden" id="sendLink" name="sendLink">
+      </div>
+      <div class="field">
+        <label>¿Enviar también el número de demo?</label>
+        <div class="toggle-row">
+          <div class="toggle-opt" data-value="yes" id="sendDemoYes">Sí</div>
+          <div class="toggle-opt" data-value="no" id="sendDemoNo">No</div>
+        </div>
+        <input type="hidden" id="sendDemo" name="sendDemo">
+      </div>
+      <button type="submit" class="save" id="openingSaveBtn">Guardar</button>
+      <span class="hint">Los datos se guardarán aquí — la próxima vez que entres en este enlace ya aparecerán completados</span>
+      <div class="status" id="openingStatus"></div>
+    </form>
+  </div>
+
+  <!-- Rozmowa zamykająca / Llamada de cierre -->
+  <div class="card">
+    <div class="card-head">
+      <span class="step-badge">2</span>
+      <div>
+        <p class="card-title">Llamada de cierre</p>
+        <p class="card-sub">Con la propietaria/el propietario del salón — cierre real</p>
+      </div>
+    </div>
+    <form id="closingForm">
+      <div class="field">
+        <label for="closingContact">Con quién hablé de la empresa</label>
+        <input type="text" id="closingContact" name="closingContact" placeholder="p. ej., Ana, propietaria">
+      </div>
+      <div class="field">
+        <label for="whatsapp">Número de WhatsApp</label>
+        <input type="tel" id="whatsapp" name="whatsapp" placeholder="34123456789">
+        <span class="hint">Formato internacional, sin + y sin espacios — a este número llegará el mensaje de bienvenida</span>
+      </div>
+      <div class="field">
+        <label for="closingCallNotes">Cómo fue la llamada y qué objeciones hubo</label>
+        <textarea id="closingCallNotes" name="closingCallNotes"></textarea>
+      </div>
+      <div class="field">
+        <label for="closingStatus">Estado</label>
+        <select id="closingStatus" name="closingStatus">
+          <option value="" disabled selected>Selecciona una opción</option>
+          <option value="agreed">Cerrado</option>
+          <option value="hesitant">Duda — volver a llamar</option>
+          <option value="declined">Rechazó</option>
+          <option value="unreachable">No se pudo contactar</option>
+          <option value="other">Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="onboardingNotes">Notas adicionales antes del onboarding</label>
+        <textarea id="onboardingNotes" name="onboardingNotes"></textarea>
+      </div>
+      <div class="field">
+        <label>¿Cerrado y se puede enviar el mensaje de bienvenida?</label>
+        <div class="toggle-row">
+          <div class="toggle-opt" data-value="yes" id="closedYes">Sí</div>
+          <div class="toggle-opt" data-value="no" id="closedNo">No</div>
+        </div>
+        <input type="hidden" id="closed" name="closed">
+      </div>
+      <button type="submit" class="save" id="closingSaveBtn">Enviar</button>
+      <div class="status" id="closingStatusMsg"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // TODO: reemplazar por las URLs de producción de los webhooks correspondientes en n8n
+  const GET_URL = "https://maibarzilay.app.n8n.cloud/webhook/lead-get-es";     // GET ?id=
+  const SAVE_URL = "https://maibarzilay.app.n8n.cloud/webhook/lead-save-es";   // POST
+
+  const TEMPLATE_LANG = "es";
+
+  const params = new URLSearchParams(location.search);
+  let leadId = params.get('id');
+  if (!leadId) {
+    leadId = crypto.randomUUID();
+    const url = new URL(location.href);
+    url.searchParams.set('id', leadId);
+    history.replaceState(null, '', url);
+  }
+
+  const loadingBanner = document.getElementById('loadingBanner');
+  const openingForm = document.getElementById('openingForm');
+  const closingForm = document.getElementById('closingForm');
+  const openingStatus = document.getElementById('openingStatus');
+  const closingStatusMsg = document.getElementById('closingStatusMsg');
+  const closedInput = document.getElementById('closed');
+  const closedYes = document.getElementById('closedYes');
+  const closedNo = document.getElementById('closedNo');
+  const sendLinkInput = document.getElementById('sendLink');
+  const sendLinkYes = document.getElementById('sendLinkYes');
+  const sendLinkNo = document.getElementById('sendLinkNo');
+  const sendDemoInput = document.getElementById('sendDemo');
+  const sendDemoYes = document.getElementById('sendDemoYes');
+  const sendDemoNo = document.getElementById('sendDemoNo');
+
+  function setClosed(value) {
+    closedInput.value = value;
+    closedYes.classList.toggle('selected', value === 'yes');
+    closedYes.classList.toggle('yes', value === 'yes');
+    closedNo.classList.toggle('selected', value === 'no');
+    closedNo.classList.toggle('no', value === 'no');
+  }
+  closedYes.addEventListener('click', () => setClosed('yes'));
+  closedNo.addEventListener('click', () => setClosed('no'));
+
+  function setSendLink(value) {
+    sendLinkInput.value = value;
+    sendLinkYes.classList.toggle('selected', value === 'yes');
+    sendLinkYes.classList.toggle('yes', value === 'yes');
+    sendLinkNo.classList.toggle('selected', value === 'no');
+    sendLinkNo.classList.toggle('no', value === 'no');
+  }
+  sendLinkYes.addEventListener('click', () => setSendLink('yes'));
+  sendLinkNo.addEventListener('click', () => setSendLink('no'));
+
+  function setSendDemo(value) {
+    sendDemoInput.value = value;
+    sendDemoYes.classList.toggle('selected', value === 'yes');
+    sendDemoYes.classList.toggle('yes', value === 'yes');
+    sendDemoNo.classList.toggle('selected', value === 'no');
+    sendDemoNo.classList.toggle('no', value === 'no');
+  }
+  sendDemoYes.addEventListener('click', () => setSendDemo('yes'));
+  sendDemoNo.addEventListener('click', () => setSendDemo('no'));
+
+  const bookingSystemOtherCheck = document.getElementById('bookingSystemOtherCheck');
+  const bookingSystemOtherWrap = document.getElementById('bookingSystemOtherWrap');
+  bookingSystemOtherCheck.addEventListener('change', () => {
+    bookingSystemOtherWrap.hidden = !bookingSystemOtherCheck.checked;
+  });
+
+  function fillForm(form, data) {
+    Object.keys(data).forEach(key => {
+      if (key === 'closed') { setClosed(data[key]); return; }
+      if (key === 'sendLink') { setSendLink(data[key]); return; }
+      if (key === 'sendDemo') { setSendDemo(data[key]); return; }
+      if (key === 'bookingSystem') {
+        const values = String(data[key] || '').split(',').map(v => v.trim()).filter(Boolean);
+        form.querySelectorAll('input[name="bookingSystem"]').forEach(cb => {
+          cb.checked = values.includes(cb.value);
+        });
+        if (values.includes('other')) bookingSystemOtherWrap.hidden = false;
+        return;
+      }
+      const el = form.elements[key];
+      if (!el || data[key] === null || data[key] === undefined) return;
+      el.value = data[key];
+    });
+  }
+
+  (async function load() {
+    let foundExisting = false;
+    try {
+      const res = await fetch(`${GET_URL}?id=${encodeURIComponent(leadId)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Object.keys(data).length) {
+          fillForm(openingForm, data);
+          fillForm(closingForm, data);
+          foundExisting = true;
+        }
+      }
+    } catch (err) {
+      // cliente nuevo aún no guardado — es normal, continuamos con el formulario vacío
+    } finally {
+      if (!foundExisting) {
+        const urlSalonName = params.get('salonName');
+        const urlWhatsapp = params.get('whatsapp');
+        if (urlSalonName) {
+          document.getElementById('salonName').value = urlSalonName;
+        }
+        if (urlWhatsapp) {
+          document.getElementById('openingWhatsapp').value = urlWhatsapp;
+        }
+      }
+      loadingBanner.style.display = 'none';
+    }
+  })();
+
+  async function saveSlice(form, slice, btn, statusEl, extraValidation) {
+    if (!form.reportValidity()) return;
+    if (extraValidation && !extraValidation()) return;
+
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = 'Enviando...';
+    statusEl.className = 'status';
+    statusEl.style.display = 'none';
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    if (form.querySelector('input[name="bookingSystem"]')) {
+      data.bookingSystem = Array.from(form.querySelectorAll('input[name="bookingSystem"]:checked'))
+        .map(el => el.value).join(',');
+    }
+    data.id = leadId;
+    data.slice = slice;
+    data.templateLang = TEMPLATE_LANG;
+    data.updatedAt = new Date().toISOString();
+
+    // Best-effort mirror to Netlify Forms as a redundant data source — never blocks the main save.
+    try {
+      const formName = slice === 'opening' ? 'opening-call' : 'closing-call';
+      const encoded = Object.entries({ 'form-name': formName, ...data })
+        .filter(([, v]) => v !== undefined && v !== null)
+        .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+        .join('&');
+      fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: encoded
+      }).catch(() => {});
+    } catch (err) {}
+
+    try {
+      const res = await fetch(SAVE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error('bad response');
+      statusEl.textContent = (slice === 'closing' && data.closed === 'yes') || (slice === 'opening' && (data.sendLink === 'yes' || data.sendDemo === 'yes'))
+        ? 'Guardado. El mensaje de WhatsApp se enviará automáticamente.'
+        : 'Guardado correctamente.';
+      statusEl.className = 'status ok';
+    } catch (err) {
+      statusEl.textContent = 'Algo salió mal. Inténtalo de nuevo, y si el problema persiste, avisa a Mai.';
+      statusEl.className = 'status err';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+
+  openingForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveSlice(openingForm, 'opening', document.getElementById('openingSaveBtn'), openingStatus, () => {
+      if ((sendLinkInput.value === 'yes' || sendDemoInput.value === 'yes') && !document.getElementById('openingWhatsapp').value.trim()) {
+        alert('Indica el número de WhatsApp para enviar el enlace o el número de demo');
+        return false;
+      }
+      return true;
+    });
+  });
+
+  closingForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    saveSlice(closingForm, 'closing', document.getElementById('closingSaveBtn'), closingStatusMsg, () => {
+      if (closedInput.value === 'yes' && !document.getElementById('whatsapp').value.trim()) {
+        alert('Indica el número de WhatsApp para enviar el mensaje de bienvenida');
+        return false;
+      }
+      return true;
+    });
+  });
+</script>
+</body>
+</html>
