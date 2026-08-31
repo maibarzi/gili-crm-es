@@ -187,6 +187,512 @@
       statuses.map(s => `<option value="${s}">${s === '-' ? 'Sin contacto' : s}</option>`).join('');
   }
 
+  // Lista estática de prospectos (Zaragoza) — se usa mientras el backend de n8n
+  // para prospects-list-es todavía no está activo. En cuanto ese webhook responda
+  // correctamente, se usará automáticamente en su lugar (ver load() abajo).
+  const STATIC_PROSPECTS = [
+  {
+    "name": "Quorum Peluqueros",
+    "phone": "+34976283228",
+    "email": "lauravicentelidon@gmail.com",
+    "domain": "quorumpeluqueros.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Modern Zaragoza hair salon specializing in Redken-trained stylists and micropigmentation, offering personalized beauty treatments and bridal"
+  },
+  {
+    "name": "EVA PELLEJERO",
+    "phone": "+34976795152",
+    "email": "evapellejero@evapellejero.com",
+    "domain": "evapellejero.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A natural hair salon in Zaragoza offering organic coloring, Qiqi treatments, and professional makeups, focusing on hydrating and strengtheni"
+  },
+  {
+    "name": "MK",
+    "phone": "+34651885210",
+    "email": "info@peluqueriamk.es",
+    "domain": "peluqueriamk.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional hair salon offering personalized styling and Kemon-approved treatments for all ages, focusing on healthy hair care and premium"
+  },
+  {
+    "name": "Isabelle Nails",
+    "phone": "+34616462931",
+    "email": "info@isabellenails.com",
+    "domain": "isabellenails.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Premium beauty salon specializing in Babor products and advanced nail treatments, offering pregnancy-friendly and cancer-specific care with"
+  },
+  {
+    "name": "NÄRAH",
+    "phone": "+34659619536",
+    "email": "info@centrosnarah.com",
+    "domain": "centrosnarah.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional beauty clinic offering laser treatments, eyelash lifts, and massages from qualified specialists in a premium aesthetic setting."
+  },
+  {
+    "name": "Zazu",
+    "phone": "+34678765482",
+    "email": "hola@zazuhairstudio.es",
+    "domain": "peluqueriazazu.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional Zaragoza hair salon offering premium color treatments and customized cuts using advanced styling techniques."
+  },
+  {
+    "name": "Oliver y Goretti",
+    "phone": "+34976313358",
+    "email": "info@oliverygoretti.com",
+    "domain": "oliverygoretti.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional hair salon in Zaragoza offering personalized cuts, coloring, and styling for over 20 years, focusing on natural hair health and"
+  },
+  {
+    "name": "Goloka",
+    "phone": "+34976094477",
+    "email": null,
+    "domain": "goloka.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Spanish hair salon offering personalized trend-cutting services and Davines-branded eco-friendly treatments, specializing in bridal makeup"
+  },
+  {
+    "name": "Arpel Estética",
+    "phone": "+34976382836",
+    "email": "info@arpelestetica.es",
+    "domain": "arpelestetica.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A natural beauty clinic offering advanced treatments like Indiba and Rósés systems, plus traditional Chinese medicine and permanent hair rem"
+  },
+  {
+    "name": "NAOS Estética",
+    "phone": "+34632690734",
+    "email": "info@naosestetica.es",
+    "domain": "naosestetica.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Advanced beauty center in Zaragoza offering laser hair removal, Indiba treatments, and body sculpting with personalized skincare consultatio"
+  },
+  {
+    "name": "Peluquería Trazzos",
+    "phone": "+34670348585",
+    "email": "info@peluqueriatrazzos.com",
+    "domain": "peluqueriatrazzos.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Zaragoza-based hair salon offering custom cuts, extensions, and bridal styles, plus microblading and cancer wig solutions."
+  },
+  {
+    "name": "Lolas",
+    "phone": "+34644804425",
+    "email": null,
+    "domain": "peluqueriaenzaragoza.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Integrated beauty salon in Zaragoza offering haircuts, nail art, and skincare treatments with personalized consultations before each service"
+  },
+  {
+    "name": "Cristina Cisneros",
+    "phone": "+34976794785",
+    "email": "hola@peluqueriacristinacisneros.es",
+    "domain": "peluqueriacristinacisneros.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Organic-focused hair salon in Zaragoza offering balayage mechas and keratin treatments, specializing in bridal styles and acid-free bonding."
+  },
+  {
+    "name": "JACSA",
+    "phone": "+34605107304",
+    "email": null,
+    "domain": "jacsa.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A natural beauty salon offering organic hair treatments, laser depilation, and micropigmentation with eco-friendly products and two physical"
+  },
+  {
+    "name": "Bilop",
+    "phone": "+34622062015",
+    "email": "bilopcosmetica@bilop.es",
+    "domain": "bilop.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Zaragoza-based eco-friendly beauty center offering personalized natural treatments, including facials, body care, and makeup, using cruelt"
+  },
+  {
+    "name": "Paréntesis",
+    "phone": "+34672753101",
+    "email": null,
+    "domain": "parentesisbeauty.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Zaragoza-based beauty studio offering personalized aesthetic treatments like eyebrows, lashes, and manicures in a relaxing, hygienic setti"
+  },
+  {
+    "name": "Laia Coiffeur",
+    "phone": "+34976223373",
+    "email": null,
+    "domain": "laiacoiffeur.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Luxury hair salon in Zaragoza offering personalized color services, bridal styling, and premium treatments like Black Baccara using Aveda/Mi"
+  },
+  {
+    "name": "Mondiale",
+    "phone": "+34976238532",
+    "email": null,
+    "domain": "peluqueriamondiale.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Zaragoza-based hair salon offering personalized cuts, coloring, and treatments with affordable pricing starting at €8, serving both gender"
+  },
+  {
+    "name": "Lullaby",
+    "phone": "+34655600349",
+    "email": "hola@esteticalullaby.com",
+    "domain": "esteticalullaby.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Luxury beauty salon in Zaragoza offering personalized treatments with premium natural cosmetics and advanced aparatological technology."
+  },
+  {
+    "name": "Cocora Estética",
+    "phone": "+34622005440",
+    "email": "info@cocoraestetica.es",
+    "domain": "cocoraestetica.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Advanced beauty clinic in Zaragoza/Tudela offering pain-free SHR laser depilation and professional facial/body treatments like HydraFace and"
+  },
+  {
+    "name": "Paz Ferrer",
+    "phone": "+34649177149",
+    "email": "pazferrerpeluqueria@hotmail.com",
+    "domain": "peluqueriapazferrer.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Zaragoza hair salon specializing in balayage and steampod straightening, with 11+ years of experience and a beauty blog sharing styling ti"
+  },
+  {
+    "name": "Inefable",
+    "phone": "+34640206576",
+    "email": "info@esteticainefable.es",
+    "domain": "esteticainefable.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A beauty center offering free facial analysis, painless laser hair removal, and exclusive nail art treatments in multiple locations."
+  },
+  {
+    "name": "Beatriz Pardos",
+    "phone": "+34684740561",
+    "email": null,
+    "domain": "beatrizpardos.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Premium hair salon offering ammonia-free treatments and child-friendly spaces, specializing in wedding styles and men's grooming with spa-li"
+  },
+  {
+    "name": "Aire",
+    "phone": "+34976204094",
+    "email": null,
+    "domain": "peluqueriaalaire.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional mixed hair salon in Zaragoza offering personalized cuts, color treatments, and styling for all ages using premium brands."
+  },
+  {
+    "name": "Yolanda Moreno",
+    "phone": "+34655767184",
+    "email": "info@insidesalons.com",
+    "domain": "yolandamorenopeluqueros.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional hair salon in Zaragoza specializing in natural curls and balayage treatments, offering personalized consultations and premium R"
+  },
+  {
+    "name": "Glow",
+    "phone": "+34620158036",
+    "email": "glow.zaragoza@gmail.com",
+    "domain": "glowzaragoza.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A luxury beauty center in Zaragoza using INDIBA's Cell Boost Technology for advanced facial/body treatments, offering manicures, lash lifts,"
+  },
+  {
+    "name": "Maria Lazz",
+    "phone": "+34976252797",
+    "email": null,
+    "domain": "marialazzpeluquerias.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "High-end hair salon specializing in Sassoon/Sebastian cuts and bridal makeup since 1985, offering personalized transformations with decades"
+  },
+  {
+    "name": "Sumakay",
+    "phone": "+34699623890",
+    "email": "sumakaybeauty@gmail.com",
+    "domain": "sumakaybeauty.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "High-end beauty center in Zaragoza offering personalized aesthetic treatments and professional beauty courses, named after Quechua-inspired"
+  },
+  {
+    "name": "La Vita Nails",
+    "phone": "+34876046003",
+    "email": "sagasta@lavitanails.com",
+    "domain": "lavitanails.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional nail salon offering CND Shellac manicures, acrylics, and wedding services with medical-grade sterilization and personalized des"
+  },
+  {
+    "name": "Estética Blanca",
+    "phone": "+34628486440",
+    "email": "estetica_blanca@hotmail.com",
+    "domain": "esteticablanca.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Advanced beauty clinic offering non-surgical botox alternatives, laser treatments, and personalized skincare in Zaragoza since 1976."
+  },
+  {
+    "name": "Atrezzo",
+    "phone": "+34976751837",
+    "email": "atrezzo.zaragoza@ex.com",
+    "domain": "atrezzopeluqueria.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Luxury beauty salon specializing in natural Secretos del Agua treatments and personalized consultations for healthy hair growth."
+  },
+  {
+    "name": "Nefertiti",
+    "phone": "+34640645635",
+    "email": "nefertitizaragoza@gmail.com",
+    "domain": "nefertitiesteticaavanzada.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Advanced beauty clinic offering INDIBA skin treatments, painless laser hair removal, and personalized microblading in Zaragoza."
+  },
+  {
+    "name": "El Jardín de Alison",
+    "phone": "+34976962755",
+    "email": "alicia@eljardindealison.com",
+    "domain": "eljardindealison.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional hair salon offering personalized cuts, advanced coloring, and styling in Zaragoza, known for quality service and client-focused"
+  },
+  {
+    "name": "QuiroNatur",
+    "phone": "+34976565597",
+    "email": null,
+    "domain": "quironatur.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Spanish beauty salon in Zaragoza offering advanced laser hair removal, radiofrequency treatments, and exotic massages using natural cosmet"
+  },
+  {
+    "name": "Darclé",
+    "phone": "+34976554087",
+    "email": null,
+    "domain": "darcle.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Luxury hair salon in Zaragoza using Kerastase/GHD/L'Oréal, specializing in bridal styling and eco-friendly treatments with 25+ years of expe"
+  },
+  {
+    "name": "Ana Car",
+    "phone": "+34976330239",
+    "email": "info@anacarestetica.es",
+    "domain": "anacarestetica.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Spanish beauty center offering advanced aesthetic treatments like radiofrequency and hyaluronic acid injections, plus nail art and skincar"
+  },
+  {
+    "name": "Estética Lafer",
+    "phone": "+34976753407",
+    "email": null,
+    "domain": "esteticalafer.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Professional beauty center in Zaragoza offering 28+ years of facial/body treatments, laser depilation, and specialized massage therapies."
+  },
+  {
+    "name": "Teresa Muñoz",
+    "phone": "+34976337448",
+    "email": "info@esteticateresamunoz.es",
+    "domain": "esteticateresamunoz.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Spanish beauty center in Zaragoza offering 26+ years of facial/body treatments, including hyaluronic acid injections and radiofrequency th"
+  },
+  {
+    "name": "Natural Derm",
+    "phone": "+34976230297",
+    "email": null,
+    "domain": "naturalderm.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Holistic beauty center offering anti-aging facials, laser treatments, and Ayurvedic yoga therapies in a relaxing, natural environment."
+  },
+  {
+    "name": "Olga Granero",
+    "phone": "+34876043159",
+    "email": "alf-tere@hotmail.com",
+    "domain": "olgagranerobelleza.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A luxury beauty clinic offering personalized facial treatments, cellulite reduction, and microneedling using advanced dermatology techniques"
+  },
+  {
+    "name": "Cucala",
+    "phone": "+34976424914",
+    "email": "info@cucalabelleza.com",
+    "domain": "cucalabelleza.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "A Spanish beauty salon offering men/women's facials, depilation, and advanced treatments like Shilhouwell for body contouring in Zaragoza."
+  },
+  {
+    "name": "Elisabeth Casablanca",
+    "phone": "+34655394176",
+    "email": null,
+    "domain": "elisabethcasablanca.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Luxury beauty and wellness center in Zaragoza offering personalized skincare, eyebrow shaping, and holistic treatments with free facial diag"
+  },
+  {
+    "name": "Alfera Beauty",
+    "phone": "+34876711255",
+    "email": "info@alferaprofesional.com",
+    "domain": "alferabeauty.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Ethical beauty center in Zaragoza offering cruelty-free laser hair removal, facial treatments, and vegan skincare using organic products."
+  },
+  {
+    "name": "MAREVIDA",
+    "phone": "+34655656743",
+    "email": null,
+    "domain": "marevida.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Advanced beauty center in Zaragoza offering personalized facial rejuvenation, laser hair removal, and anti-cellulite treatments with high-en"
+  },
+  {
+    "name": "Ettro",
+    "phone": "+34976396007",
+    "email": "raquel_lou@hotmail.com",
+    "domain": "ettropeluqueros.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "High-end Zaragoza hair salon offering weddings/birthdays styles, makeup artistry, and sugar waxing in historic downtown location."
+  },
+  {
+    "name": "Betrian",
+    "phone": "+34976220994",
+    "email": "info@betrianpeluqueros.es",
+    "domain": "betrianpeluqueros.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Luxury hair salon in Zaragoza offering personalized cuts since 1967, using cruelty-free plant-based products and LPG treatments for lasting"
+  },
+  {
+    "name": "Skanda",
+    "phone": "+34610445964",
+    "email": "skanda@skanda.es",
+    "domain": "skanda.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Luxury hair salon in Zaragoza offering personalized hairstyles, scalp treatments, and 360-degree beauty services with free first consultatio"
+  },
+  {
+    "name": "Vanadis",
+    "phone": "+34644966106",
+    "email": null,
+    "domain": "vanadisestetica.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Advanced beauty salon in Zaragoza offering fiber-optic laser treatments and personalized skincare, with monthly subscription options from €5"
+  },
+  {
+    "name": "Ana Manao",
+    "phone": "+34616248021",
+    "email": "actur@anamanao.com",
+    "domain": "anamanao.com",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Medical beauty clinic offering Indiba treatments, laser hair removal, and personalized skincare in multiple Zaragoza locations."
+  },
+  {
+    "name": "Mains",
+    "phone": "+34606520691",
+    "email": "contacto@mainzar.es",
+    "domain": "mainszaragoza.es",
+    "status": "",
+    "lastCallDate": null,
+    "followupTodo": null,
+    "notes": "Premium beauty center in Zaragoza offering acrylic nail art, microblading, and facial treatments with free consultations since 2015."
+  }
+];
+
   (async function load() {
     try {
       const res = await fetch(LIST_URL);
@@ -195,7 +701,9 @@
       populateStatusFilter(prospects);
       render(prospects);
     } catch (err) {
-      grid.innerHTML = '<div class="error">No se pudo cargar la lista de prospectos.</div>';
+      prospects = STATIC_PROSPECTS;
+      populateStatusFilter(prospects);
+      render(prospects);
     }
   })();
 </script>
